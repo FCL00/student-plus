@@ -17,7 +17,7 @@ export const useAuth = () => {
 
   function onLogout() {
     localStorage.setItem('isAuthenticated', JSON.stringify(false))
-    ElMessage.error('You successfully logout')
+    ElMessage.success('You successfully logout')
     router.push('/')
   }
 

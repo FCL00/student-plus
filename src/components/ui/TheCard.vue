@@ -2,8 +2,8 @@
   <el-card shadow="hover">
     <div class="card-header">
       <div class="card-group">
-        <img :src="avatar" alt="profile picture of the user" loading="lazy" />
-        <h5>{{ fullname }}</h5>
+        <el-icon><User /></el-icon>
+        <h5 class="fullname">{{ fullname }}</h5>
       </div>
       <button color="#2148c0" @click="drawer = true">
         <el-icon color="white">
@@ -11,12 +11,19 @@
         </el-icon>
       </button>
     </div>
-    <div class="card-body">
-      <p>Age : {{ props.age }} / Birthday : {{ props.birthdate }}</p>
-    </div>
-    <div style="padding: 4px">
-      <p>{{ props.course }}</p>
-      <p>{{ props.address }}</p>
+    <div class="card-body" style="padding: 12px">
+      <div class="icon">
+        <el-icon><Calendar /></el-icon>
+        <p>Age: {{ props.age }} | Birthdate: {{ props.birthdate }}</p>
+      </div>
+      <div class="icon">
+        <el-icon><School /></el-icon>
+        <p>Course: {{ props.course }}</p>
+      </div>
+      <div class="icon">
+        <el-icon><MapLocation /></el-icon>
+        <p>Address: {{ props.address }}</p>
+      </div>
     </div>
   </el-card>
 
@@ -29,7 +36,7 @@
       :birthdate="birthdate"
       :address="props.address"
       :course="props.course"
-      :id="Number(props.id)"
+      :id="props.id"
     ></student-form>
   </the-drawer>
 </template>
@@ -37,9 +44,8 @@
 <script lang="ts" setup>
 import { defineProps, computed, ref } from 'vue'
 import { ElCard } from 'element-plus'
-import avatar from '@/assets/avatar.png'
 import type { Users } from '@/types'
-import { Edit } from '@element-plus/icons-vue'
+import { Edit, Calendar, School, MapLocation, User } from '@element-plus/icons-vue'
 import { TheDrawer } from '@/components/ui'
 import { StudentForm } from '@/components'
 
@@ -47,13 +53,20 @@ import { StudentForm } from '@/components'
 const drawer = ref(false)
 
 // display the fullname
-const fullname = computed(() => `${props.firstname} ${props.middlename} ${props.lastname} `)
+const fullname = computed(
+  () => `${props.firstname} ${props.middlename.charAt(0)}. ${props.lastname} `,
+)
 
 // define props
 const props = defineProps<Users>()
 </script>
 
 <style scoped>
+.fullname {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: 12px;
+}
 p {
   font-size: small;
 }
@@ -64,6 +77,7 @@ p {
 
 .card-header {
   position: relative;
+  padding: 8px;
 }
 
 .card-body,
@@ -81,6 +95,12 @@ p {
 .card-group {
   display: flex;
   align-items: center;
+}
+
+.icon {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 button {

@@ -21,8 +21,8 @@
 
       <!-- Navigation Links -->
       <ul :class="['navbar-links', isMenuOpen ? 'open' : '']">
-        <span class="add-user" @click="drawer = true">Add User</span>
-        <span class="add-user" @click="onLogout()">Logout</span>
+        <span class="add-user" @click="drawer = true">Register Student</span>
+        <span class="add-user" @click="onHandleLogout()">Logout</span>
       </ul>
     </div>
   </nav>
@@ -36,9 +36,9 @@
       :birthdate="''"
       :address="''"
       :course="''"
-      :id="students.length++"
+      :id="studentId"
       :BtnLabel="'Add User'"
-      :BtnDelete="true"
+      :BtnDelete="false"
       :OnAdd="true"
     ></student-form>
   </the-drawer>
@@ -46,20 +46,42 @@
 
 <script lang="ts" setup>
 import { RouterLink } from 'vue-router'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { TheDrawer } from '@/components/ui'
 import { StudentForm } from '@/components'
-import { useStudents } from '@/stores/students'
 import { useAuth } from '@/composables/useAuth'
-const { onLogout } = useAuth()
-const { fetchStudents } = useStudents()
-const students = fetchStudents()
+import { v4 as uuidv4 } from 'uuid'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const drawer = ref(false)
+const studentId = ref<string>(uuidv4())
+
+watch(drawer, (val) => {
+  studentId.value = uuidv4()
+})
+
+const { onLogout } = useAuth()
 
 const isMenuOpen = ref(false)
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
+}
+
+const onHandleLogout = () => {
+  ElMessageBox.confirm('Do you really want to logout?', 'Warning', {
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'Cancel',
+    type: 'warning',
+  })
+    .then(() => {
+      onLogout()
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Logout canceled',
+      })
+    })
 }
 </script>
 
@@ -68,9 +90,8 @@ a {
   text-decoration: none;
 }
 
-/* ===== Layout & Container ===== */
 .navbar {
-  background-color: white;
+  background-color: var(--brand-blue);
   border-bottom: 1px solid #e5e7eb;
   position: fixed;
   top: 0;
@@ -87,7 +108,6 @@ a {
   justify-content: space-between;
 }
 
-/* ===== Logo ===== */
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -102,10 +122,14 @@ a {
 .brand-name {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #fff;
 }
 
-/* ===== Menu Toggle (Mobile Only) ===== */
+.brand-name:hover,
+.brand-name:active {
+  color: #fff;
+}
+
 .menu-toggle {
   display: none;
   background: none;
@@ -116,6 +140,7 @@ a {
 .menu-icon {
   width: 1.25rem;
   height: 1.25rem;
+  color: white;
 }
 
 @media (max-width: 768px) {
@@ -125,7 +150,6 @@ a {
   }
 }
 
-/* ===== Navigation Links ===== */
 .navbar-links {
   display: flex;
   gap: 1.5rem;
@@ -151,13 +175,13 @@ a {
 .add-user {
   cursor: pointer;
   padding: 2px;
+  color: #fff;
 }
 
-/* ===== Mobile Menu ===== */
 @media (max-width: 768px) {
   .navbar-links {
     position: absolute;
-    top: 64px;
+    top: 60px;
     right: 1rem;
     flex-direction: column;
     background: white;
@@ -169,6 +193,13 @@ a {
 
   .navbar-links.open {
     display: flex;
+    right: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .add-user {
+    color: black;
   }
 }
 </style>

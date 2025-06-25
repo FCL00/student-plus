@@ -51,6 +51,7 @@ export const useAccount = defineStore('accounts', () => {
     console.log('Stored Account:', account)
 
     if (account.username === username && account.password === hashedPassword) {
+      console.log('Account is being updated')
       const updatedAccount = {
         ...account,
         password: SHA256(newpassword).toString(),

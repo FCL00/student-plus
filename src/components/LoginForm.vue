@@ -13,7 +13,7 @@
     <el-form-item prop="password" label-position="top">
       <el-input
         v-model="ruleForm.password"
-        :placeholder="props.newpassword ? 'OLD PASSWORD' : 'PASSWORD'"
+        :placeholder="props.newpassword ? 'NEW PASSWORD' : 'PASSWORD'"
         :prefix-icon="Suitcase"
         show-password
         clearable
@@ -24,7 +24,7 @@
     <el-form-item v-if="props.newpassword" prop="newpassword" label-position="top">
       <el-input
         v-model="ruleForm.newpassword"
-        placeholder="NEW PASSWORD"
+        placeholder="CONFIRM PASSWORD"
         :prefix-icon="Suitcase"
         show-password
         clearable
@@ -44,7 +44,7 @@
 
 <script lang="ts" setup>
 import { reactive, ref, defineProps } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormInstance, FormRules, FormItemRule } from 'element-plus'
 import { User, Suitcase } from '@element-plus/icons-vue'
 import type { LoginRuleForm } from '@/types'
 import { RouterLink } from 'vue-router'
@@ -62,15 +62,42 @@ const props = defineProps({
 
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<LoginRuleForm>({
-  username: 'admin@gmail.com',
-  password: 'admin123!',
-  newpassword: 'pogi123!',
+  username: '',
+  password: '',
+  newpassword: '',
 })
+
+const passwordValidator = (rule: any, value: string, callback: any) => {
+  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/
+  if (!value) {
+    return callback(new Error('Password is required.'))
+  } else if (!pattern.test(value) && props.newpassword) {
+    return callback(
+      new Error('Password must contain uppercase, lowercase, number, and special character.'),
+    )
+  }
+  return callback()
+}
+
+const matchPassword = (rule: any, value: string, callback: any) => {
+  if (!value) {
+    return callback(new Error('Password is required.'))
+  } else if (value !== ruleForm.password) {
+    return callback(new Error('Password and Confirm Password doesnt match'))
+  }
+}
 
 const rules = reactive<FormRules<LoginRuleForm>>({
   username: [{ required: true, message: 'username is required', trigger: 'blur' }],
-  password: [{ required: true, message: 'password is required', trigger: 'blur' }],
-  newpassword: [{ required: true, message: 'newpassword is required', trigger: 'blur' }],
+  password: [
+    { required: true, message: 'password is required', trigger: 'blur' },
+    { validator: passwordValidator, trigger: 'blur' },
+  ],
+  newpassword: [
+    { required: true, message: 'confirm password is required', trigger: 'blur' },
+    { validator: passwordValidator, trigger: 'blur' },
+    { validator: matchPassword, trigger: 'blur' },
+  ],
 })
 
 const submitForm = async (formEl: FormInstance | undefined) => {
@@ -79,7 +106,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (valid) {
       if (props.newpassword) {
         onForgotPassword(ruleForm.username, ruleForm.password, ruleForm.newpassword ?? '')
+        console.log('forgot password')
       } else {
+        console.log('its being login')
         onLogin(ruleForm)
       }
     } else {
@@ -90,6 +119,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 </script>
 
 <style scoped>
+a {
+  display: inline;
+}
 form {
   width: 500px;
   padding: 20px;

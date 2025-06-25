@@ -1,11 +1,18 @@
 <template>
   <div class="container">
+    <div class="search-bar">
+      <el-input v-model="nameFilter" placeholder="Search by name" clearable />
+
+      <el-select v-model="courseFilter" placeholder="Filter by course" clearable>
+        <el-option v-for="course in courses" :key="course" :label="course" :value="course" />
+      </el-select>
+    </div>
     <the-header></the-header>
-    <ul class="card-list">
+    <ul v-if="filteredStudents" class="card-list">
       <the-card
-        v-for="student in students"
-        :key="student.firstname"
-        :id="student.firstname"
+        v-for="student in filteredStudents"
+        :key="student.id"
+        :id="student.id"
         :firstname="student.firstname"
         :middlename="student.middlename"
         :lastname="student.lastname"
@@ -13,18 +20,33 @@
         :birthdate="student.birthdate"
         :course="student.course"
         :address="student.address"
-      ></the-card>
+      />
     </ul>
+    <el-empty v-if="!filteredStudents.length" description="No Students Found" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { TheCard, TheHeader } from '@/components/ui'
 import { useAuth } from '@/composables/useAuth'
-import { onMounted } from 'vue'
+import { onMounted, watch, ref, computed } from 'vue'
 import { useStudents } from '@/stores/students'
+import { courses } from '@/constants'
 
-const { students } = useStudents()
+const studentsStore = useStudents()
+
+const nameFilter = ref('')
+const courseFilter = ref('')
+
+// Update store filters
+watch(nameFilter, (val) => {
+  studentsStore.setFilterName(val)
+})
+watch(courseFilter, (val) => {
+  studentsStore.setFilterCourse(val)
+})
+
+const filteredStudents = computed(() => studentsStore.allStudents)
 
 const { checkAuth } = useAuth()
 
@@ -36,12 +58,46 @@ onMounted(() => {
 <style scoped>
 .container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
+:deep(.el-input) {
+  width: 300px;
+  margin-bottom: 10px;
+}
+
+:deep(.el-select) {
+  width: 200px;
+  margin-left: 10px;
+}
+
+.search-bar {
+  margin-top: 10rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* search-bar */
+@media (max-width: 560px) {
+  .search-bar {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  :deep(.el-input) {
+    width: 100%;
+  }
+
+  :deep(.el-select) {
+    width: 100%;
+    margin: 0px;
+  }
+}
+
 .card-list {
-  --grid-cols: 5;
+  --grid-cols: 4;
   max-width: 1440px;
   display: grid;
   grid-template-columns: repeat(var(--grid-cols), 1fr);
@@ -49,9 +105,21 @@ onMounted(() => {
   background-color: #fff;
   padding: 4px;
   border-radius: 4px;
-  margin: 8rem 0px;
+  margin-bottom: 32px;
 }
 
+/* search-bar */
+@media (max-width: 560px) {
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .search-bar input {
+    width: 100%;
+  }
+}
+
+/* for grid column */
 @media (max-width: 1460px) {
   .container {
     padding: 20px;
