@@ -22,10 +22,13 @@ defineProps<{
 }>()
 const emit = defineEmits(['update:visible'])
 
-const size = ref<number>(50)
+const size = ref<number>(30)
 
 function resize() {
-  if (window.innerWidth < 1000 && window.innerWidth >= 500) {
+  if( window.innerWidth > 1000  &&  window.innerWidth < 1400){
+    size.value = 40
+  }
+  else if (window.innerWidth >= 500  && window.innerWidth < 1000) {
     size.value = 50
   } else if (window.innerWidth < 500) {
     size.value = 100
