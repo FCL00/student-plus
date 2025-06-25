@@ -1,12 +1,13 @@
 <template>
-  <div class="container">
+  <base-container>
     <h1>404 NOT FOUND</h1>
     <router-link to="/">&laquo; Go back</router-link>
-  </div>
+  </base-container>
 </template>
 
 <script lang="ts" setup>
 import { RouterLink } from 'vue-router'
+import { BaseContainer } from '@/components';
 </script>
 
 <style scoped>
@@ -14,16 +15,16 @@ h1 {
   font-size: 10rem;
   margin-bottom: 20px;
   text-align: center;
-  color: var(--brand-blue);
+  color: white;
+}
+
+a {
+  color: white;
 }
 
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  width: 100%;
-  height: 100vh;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 @media (max-width: 650px) {
