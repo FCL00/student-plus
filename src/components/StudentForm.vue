@@ -68,23 +68,21 @@
       />
     </el-form-item>
 
-    <el-button color="#181818" @click="submitForm(ruleFormRef)" :icon="Edit">{{
-      BtnLabel
-    }}</el-button>
-    <el-button
-      v-if="props.BtnDelete"
-      type="danger"
-      @click="
-        () => {
-          confirmDelete(ruleForm.id)
-        }
-      "
-      :icon="Delete"
-    >
-      Delete
-    </el-button>
+    <div class="button-group">
+      <el-button color="#181818" @click="submitForm(ruleFormRef)" :icon="Edit">
+        {{ BtnLabel }}
+      </el-button>
+      <el-button @click="resetForm(ruleFormRef)" type="primary" :icon="Refresh"> Reset </el-button>
+      <el-button 
+        v-if="props.BtnDelete" type="danger"
+        @click=" () => { confirmDelete(ruleForm.id)}"
+        :icon="Delete"
+      >
+        Delete
+      </el-button>
+      
+    </div>
 
-    <el-button @click="resetForm(ruleFormRef)" type="primary" :icon="Refresh"> Reset </el-button>
   </el-form>
 </template>
 
@@ -205,17 +203,21 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+      const formCopy = { ...ruleForm }
       if (props.OnAdd) {
-        onAddStudents(ruleForm)
+        
+        onAddStudents(formCopy)
       } else if (!props.OnAdd) {
-        onUpdateStudentInfo(ruleForm)
+        onUpdateStudentInfo(formCopy)
       } else {
         ElMessage.error('Something went wrong')
       }
+      formEl.resetFields()
     } else {
       console.log('error submit!', fields)
     }
   })
+  
 }
 
 const confirmDelete = (id: string) => {
@@ -240,10 +242,28 @@ const confirmDelete = (id: string) => {
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
+  ElMessage.success("Form has been reset")
 }
 </script>
 
 <style scoped>
+
+
+
+
+@media (max-width: 850px){
+.button-group {
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.el-button){
+   margin: 4px 0px;
+}
+}
+
+
+
 :deep(.el-select) {
   width: 100%;
 }
