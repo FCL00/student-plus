@@ -1,13 +1,13 @@
 interface Credentials {
   username: string
   password: string
-  newpassword?: string
+  confirmpassword?: string
 }
 
 interface LoginRuleForm {
   username: string
   password: string
-  newpassword?: string
+  confirmpassword?: string
 }
 
 interface Users {
