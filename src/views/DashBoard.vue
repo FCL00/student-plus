@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="search-bar">
-      <el-input v-model="nameFilter" placeholder="Search by name" clearable />
+      <el-input v-model="nameFilter" placeholder="Search by name" clearable  :prefix-icon="Search"/>
 
       <el-select v-model="courseFilter" placeholder="Filter by course" clearable>
         <el-option v-for="course in courses" :key="course" :label="course" :value="course" />
@@ -32,6 +32,7 @@ import { useAuth } from '@/composables/useAuth'
 import { onMounted, watch, ref, computed } from 'vue'
 import { useStudents } from '@/stores/students'
 import { courses } from '@/constants'
+import { Search } from '@element-plus/icons-vue'
 
 const studentsStore = useStudents()
 
