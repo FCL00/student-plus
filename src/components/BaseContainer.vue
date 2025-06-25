@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <slot></slot>
-    <img :src="curve" alt="ellispse" class="top-right" loading="lazy" />
-    <img :src="ellispse" alt="ellispse" class="bottom-left" loading="lazy" />
+    <img :src="curve" alt="curve" class="top-right" loading="eager" />
+    <img :src="ellispse" alt="ellispse" class="bottom-left" loading="eager" />
   </div>
 </template>
 
