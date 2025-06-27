@@ -9,7 +9,7 @@ Follow the steps below to set up the project:
 
 1. Clone Repository
     ```
-    git clone https://github.com/FCL00/student-registration.git
+    git clone https://github.com/FCL00/student-plus.git
     ```
 
 2. Run `npm run install`
