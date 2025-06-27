@@ -14,15 +14,19 @@
     <div class="card-body" style="padding: 12px">
       <div class="icon">
         <el-icon><Calendar /></el-icon>
-        <p>Age: {{ props.age }} | Birthdate: {{ props.birthdate }}</p>
+        <p>Age: <span>{{ props.age }}</span></p>
+      </div>
+      <div class="icon">
+        <el-icon><IceTea /></el-icon>
+        <p>Birthdate: <span>{{ props.birthdate }}</span></p>
       </div>
       <div class="icon">
         <el-icon><School /></el-icon>
-        <p>Course: {{ props.course }}</p>
+        <p>Course: <span>{{ props.course }}</span></p>
       </div>
       <div class="icon">
         <el-icon><MapLocation /></el-icon>
-        <p>Address: {{ props.address }}</p>
+        <p>Address: <span>{{ address }}</span></p>
       </div>
     </div>
   </el-card>
@@ -34,7 +38,7 @@
       :middlename="props.middlename"
       :age="props.age"
       :birthdate="birthdate"
-      :address="props.address"
+      :address="address"
       :course="props.course"
       :id="props.id"
     ></student-form>
@@ -45,20 +49,22 @@
 import { defineProps, computed, ref } from 'vue'
 import { ElCard } from 'element-plus'
 import type { Users } from '@/types'
-import { Edit, Calendar, School, MapLocation, User } from '@element-plus/icons-vue'
+import { Edit, Calendar, School, MapLocation, User, IceTea } from '@element-plus/icons-vue'
 import { TheDrawer } from '@/components/ui'
 import { StudentForm } from '@/components'
-
+import { capitalize } from "@/utils/capitalize"
+import { capitalizeEachWord } from '@/utils/capitalize'
 // to toggle the drawer
 const drawer = ref(false)
 
 // display the fullname
-const fullname = computed(
-  () => `${props.firstname} ${props.middlename.charAt(0)}. ${props.lastname} `,
-)
+const fullname = computed(() => `${capitalize(props.firstname)} ${props.middlename.charAt(0).toUpperCase()}. ${capitalize(props.lastname)} `)
 
+// display address 
+const address = computed(() => `${capitalizeEachWord(props.address)}`)
 // define props
 const props = defineProps<Users>()
+
 </script>
 
 <style scoped>
@@ -69,7 +75,13 @@ const props = defineProps<Users>()
 }
 p {
   font-size: small;
+  font-weight: bold;
 }
+
+p span {
+  font-weight: normal;
+}
+
 
 :deep(.el-card__body) {
   --el-card-padding: 12px;

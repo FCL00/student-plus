@@ -96,7 +96,7 @@ a {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 20;
+  z-index: 80;
 }
 
 .navbar-container {

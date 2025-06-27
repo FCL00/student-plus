@@ -1,8 +1,12 @@
 <template>
+  <!-- Student Form -->
   <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
     <header>
+      <!-- Inject Header Here -->
       <slot name="header"></slot>
     </header>
+
+    <!-- Firstname -->
     <el-form-item label="Firstname" prop="firstname" label-position="top">
       <el-input
         v-model="ruleForm.firstname"
@@ -11,23 +15,29 @@
         autocomplete="off"
       />
     </el-form-item>
+
+    <!-- Middle Name -->
     <el-form-item label="Middlename" prop="middlename" label-position="top">
       <el-input
-        v-model="ruleForm.middlename"
+        v-model.value="ruleForm.middlename"
         placeholder="Enter your middle name"
         clearable
         autocomplete="off"
       />
     </el-form-item>
+
+
+    <!-- Lastname -->
     <el-form-item label="Lastname" prop="lastname" label-position="top">
       <el-input
-        v-model="ruleForm.lastname"
+        v-model.value="ruleForm.lastname"
         placeholder="Enter your last name"
         clearable
         autocomplete="off"
       />
     </el-form-item>
 
+    <!-- Birthdate -->
     <el-form-item label="Birthdate" prop="birthdate" label-position="top">
       <el-date-picker
         v-model="ruleForm.birthdate"
@@ -37,6 +47,7 @@
       />
     </el-form-item>
 
+    <!-- Age -->
     <el-form-item label="Age" prop="age" label-position="top">
       <el-input
         type="number"
@@ -48,6 +59,7 @@
       />
     </el-form-item>
 
+    <!-- Course -->
     <el-form-item label="Course" prop="course" label-position="top">
       <el-select v-model="ruleForm.course" placeholder="Select" size="large">
         <el-option
@@ -59,6 +71,7 @@
       </el-select>
     </el-form-item>
 
+    <!-- Address -->
     <el-form-item label="Address" prop="address" label-position="top">
       <el-input
         v-model="ruleForm.address"
@@ -68,6 +81,7 @@
       />
     </el-form-item>
 
+    <!-- Button Group  for (Add, Reset Delete) -->
     <div class="button-group">
       <el-button color="#181818" @click="submitForm(ruleFormRef)" :icon="Edit">
         {{ BtnLabel }}
@@ -87,16 +101,20 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineProps, watch } from 'vue'
+import { reactive, ref, defineProps, watch, onUpdated } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { Users, UsersRuleForm } from '@/types'
 import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
 import { courses } from '@/constants'
 import { useStudents } from '@/stores/students'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { capitalize } from '@/utils/capitalize'
 
+// functions that handle update / delete / add student records
 const { onUpdateStudentInfo, onDeleteStudentInfo, onAddStudents } = useStudents()
 
+
+// Student form props
 interface StudentFormProps {
   id: string
   firstname: string
@@ -111,44 +129,59 @@ interface StudentFormProps {
   OnAdd?: boolean
 }
 
+// set default value on props for BtnDelete/BtnLabel/OnAdd
 const props = withDefaults(defineProps<StudentFormProps>(), {
   BtnDelete: true,
   BtnLabel: 'Save Changes',
   OnAdd: false,
 })
 
+
+// Reference to the form instance used for validation and submission
 const ruleFormRef = ref<FormInstance>()
+
+/*   
+*   form models bound to the student form fields.
+*   Initialized with props passed to the component.
+*/ 
 const ruleForm = reactive<Users>({
   id: props.id,
-  firstname: props.firstname,
-  middlename: props.middlename,
-  lastname: props.lastname,
+  firstname: capitalize(props.firstname),
+  middlename: capitalize(props.middlename) ,
+  lastname: capitalize(JSON.parse(JSON.stringify(props.lastname))),
   age: Number(props.age),
   address: props.address,
   birthdate: props.birthdate,
   course: props.course,
 })
 
-// watch the age if its minor or not
+// Watches the student's birthdate and automatically calculates age.
+// Updates the `formData.age` field whenever `formData.birthdate` changes.
 watch(
-  () => ruleForm.birthdate,
+  () => ruleForm.birthdate, // track the user input for birthdate
   (newVal) => {
     if (newVal) {
       const birthDate = new Date(newVal)
       const today = new Date()
-      let age = today.getFullYear() - birthDate.getFullYear()
-      const m = today.getMonth() - birthDate.getMonth()
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--
+      let calculatedAge  = today.getFullYear() - birthDate.getFullYear()
+      const monthDifference  = today.getMonth() - birthDate.getMonth()
+      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        calculatedAge --
       }
-      ruleForm.age = age
+      ruleForm.age = calculatedAge 
     } else {
-      ruleForm.age = 0
+      ruleForm.age = 0 // Reset age if birthdate is cleared
     }
   },
 )
 
-const checkAgeNumber = (rule, value, callback) => {
+/**
+ * custom validator to check if the age is valid.
+ * @param {any} rule - Validation rule object
+ * @param {number} value - The value of the age field to validate
+ * @param {any} callback - Function to call with validation result (error or success)
+ */
+const checkAgeNumber = (rule: any, value: number, callback: any) => {
   if (!value) {
     return callback(new Error('Age is required'))
   }
@@ -158,12 +191,19 @@ const checkAgeNumber = (rule, value, callback) => {
   callback()
 }
 
-// Custom validator to check for only letters, spaces, hyphens, and apostrophes
-const nameValidator = (rule, value, callback) => {
+/**  
+ * Custom validator to check for only letters, spaces, hyphens, and apostrophes
+ * @param {any} rule - Validation rule object
+ * @param {any} value - The value of the names field to validate if they have
+ * @param {any} callback - Function to call with validation result (error or success)
+ */
+const nameValidator = (rule: any, value: string, callback: any) => {
   const pattern = /^[a-zA-Z\s'-]+$/
+  // if value doesnt exist
   if (!value) {
     callback(new Error('This field is required.'))
   } else if (!pattern.test(value)) {
+    // else if the password has numbers / symbols
     callback(new Error('Only letters, spaces, hyphens, and apostrophes are allowed.'))
   } else {
     callback()
@@ -172,40 +212,62 @@ const nameValidator = (rule, value, callback) => {
 
 // validate the user inputs
 const rules = reactive<FormRules<UsersRuleForm>>({
+  // firstname validators
   firstname: [
     { required: true, message: 'firstname is required', trigger: 'blur' },
     { min: 2, message: 'firstname is required', trigger: 'blur' },
     { validator: nameValidator, message: 'Numbers and Specials are not allowed', trigger: 'blur' },
   ],
+  // middlename validators
   middlename: [
     { required: true, message: 'middlename is required', trigger: 'blur' },
     { validator: nameValidator, message: 'Numbers and Specials are not allowed', trigger: 'blur' },
   ],
+  // lastname validators
   lastname: [
     { required: true, message: 'lastname is required', trigger: 'blur' },
     { validator: nameValidator, message: 'Numbers and Specials are not allowed', trigger: 'blur' },
   ],
+  // age validators
   age: [
     { required: true, message: 'age is required', trigger: 'blur' },
     { required: true, validator: checkAgeNumber, trigger: 'blur' },
   ],
+  // address validators
   address: [
     { required: true, message: 'address is required', trigger: 'blur' },
     { min: 5, message: 'Invalid address' },
   ],
+  // courses validators
   course: [{ required: true, message: 'course is required', trigger: 'blur' }],
+  // birthdate validators
   birthdate: [{ required: true, message: 'birthdate is required', trigger: 'blur' }],
 })
 
-// Handle Submit Form
+// Lower case the student data
+const toLowerCaseFormData = () => {
+  return {
+    ...ruleForm,
+    firstname: ruleForm.firstname.toLowerCase().trim(),
+    middlename: ruleForm.middlename.toLowerCase().trim(),
+    lastname: ruleForm.lastname.toLowerCase().trim(),
+    address: ruleForm.address.toLowerCase().trim(),
+  }
+}
 
+
+/**
+ *  handle form submit toggles between add students or update students
+ * @param {any} formEl:FormInstance|undefined
+ * @returns {any}
+ */
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
+    
     if (valid) {
-      const formCopy = { ...ruleForm }
+      const formCopy = toLowerCaseFormData()
       if (props.OnAdd) {
-        
         onAddStudents(formCopy)
       } else if (!props.OnAdd) {
         onUpdateStudentInfo(formCopy)
@@ -217,9 +279,15 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       console.log('error submit!', fields)
     }
   })
-  
 }
 
+
+
+/**
+ *  Message box for confirmation of deletetion of student record
+ * @param {any} id:string
+ * @returns {any}
+ */
 const confirmDelete = (id: string) => {
   ElMessageBox.confirm(
     'This action will permanently delete the student record. Continue?',
@@ -238,31 +306,23 @@ const confirmDelete = (id: string) => {
     })
 }
 
-// Handle Reset Form
+
+/**
+ * Reset all the user inputs
+ * @param {any} formEl:FormInstance|undefined
+ * @returns {any}
+ */
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
   ElMessage.success("Form has been reset")
 }
+onUpdated(()=> {
+  Object.assign(ruleForm, props)
+})
 </script>
 
 <style scoped>
-
-
-
-
-@media (max-width: 850px){
-.button-group {
-  display: flex;
-  flex-direction: column;
-}
-
-:deep(.el-button){
-   margin: 4px 0px;
-}
-}
-
-
 
 :deep(.el-select) {
   width: 100%;
@@ -301,4 +361,16 @@ h2 {
 .form-control {
   padding: 4px;
 }
+
+@media (max-width: 850px){
+  .button-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  :deep(.el-button){
+    margin: 4px 0px;
+  }
+}
+
 </style>

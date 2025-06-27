@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import type { Users } from '@/types'
 import { ElMessage } from 'element-plus'
-import { dateFormatter } from '@/utils/dateFormatter' // assuming you import this
-
+import { dateFormatter } from '@/utils/dateFormatter'
 export const useStudents = defineStore('students', {
+  // Defines the default state for the store.
   state: () => ({
     students: JSON.parse(localStorage.getItem('students') || '[]') as Users[],
     filterCourse: '',
@@ -11,6 +11,15 @@ export const useStudents = defineStore('students', {
   }),
 
   getters: {
+
+    /**
+     * Returns a filtered list of students based on the selected course and name.
+     * Filters:
+     * - Course
+     * - Fullname (firstname. lastname / middle) case insensitive
+     * @param {any} state
+     * @returns {any}
+     */
     allStudents: (state): Users[] => {
       // Filter by course & name (case insensitive)
       return state.students.filter((student) => {
@@ -28,30 +37,61 @@ export const useStudents = defineStore('students', {
       })
     },
 
+    /**
+     * Get student record by id
+     * @param {any} state
+     * @returns {any}
+     */
     getStudentById: (state) => {
       return (id: string) => state.students.find((student) => student.id === id)
     },
 
+
+    /**
+     * getStudentByCourse
+     * @param {any} state
+     * @returns {any}
+     */
     getStudentByCourse: (state) => {
       return (course: string) => state.students.find((student) => student.course === course)
     },
   },
 
   actions: {
+    /**
+     * Set the value for course filter
+     * @param {any} course:string
+     * @returns {string}
+     */
     setFilterCourse(course: string) {
       this.filterCourse = course
     },
 
+    /**
+     * Set the value for name filter
+     * @param {any} course:string
+     * @returns {string}
+     */
     setFilterName(name: string) {
       this.filterName = name
     },
 
-    fetchStudents() {
+    
+    /**
+     * fetch student records on localstroage
+     * @returns {any}
+     */
+    getStudentOnLocalStorage() {
       return JSON.parse(localStorage.getItem('students') || '[]')
     },
 
+    /**
+     * Add students on the localstorage
+     * @param {any} studentData:Users
+     * @returns {any}
+     */
     onAddStudents(studentData: Users) {
-      const studentList = this.fetchStudents()
+      const studentList = this.getStudentOnLocalStorage()
       studentData.birthdate = dateFormatter(studentData.birthdate.toString())
       studentList.push(studentData)
       localStorage.setItem('students', JSON.stringify(studentList))
@@ -59,6 +99,12 @@ export const useStudents = defineStore('students', {
       ElMessage.success('Successfully added new User')
     },
 
+
+    /**
+     * Update the students on localstorage
+     * @param {any} studentData:Users
+     * @returns {any}
+     */
     onUpdateStudentInfo(studentData: Users) {
       studentData.birthdate = dateFormatter(studentData.birthdate.toString())
 
@@ -75,10 +121,15 @@ export const useStudents = defineStore('students', {
       }
     },
 
+    /**
+     * Delete student record on localstorage
+     * @param {any} id:string
+     * @returns {any}
+     */
     onDeleteStudentInfo(id: string) {
       try {
         console.log('argument id: ' + id)
-        const currentStudents = this.fetchStudents()
+        const currentStudents = this.getStudentOnLocalStorage()
         const updatedStudents = currentStudents.filter((student: Users) => student.id !== id)
 
         localStorage.setItem('students', JSON.stringify(updatedStudents))
@@ -91,61 +142,3 @@ export const useStudents = defineStore('students', {
     },
   },
 })
-
-// export const useStudents = defineStore('students', () => {
-//   const students = ref<Users[]>(fetchStudents())
-
-//   // fetch students
-//   function fetchStudents() {
-//     return JSON.parse(localStorage.getItem('students') || '[]')
-//   }
-
-//   // add new student to the localstorage
-//   function onAddStudents(studentData: Users) {
-//     const studentList = fetchStudents()
-//     studentData.birthdate = dateFormatter(studentData.birthdate.toString())
-//     studentList.push(studentData)
-//     localStorage.setItem('students', JSON.stringify(studentList))
-//     ElMessage.success('Successfully added new User')
-//   }
-
-//   // update data on existing list
-//   function onUpdateStudentInfo(studentData: Users) {
-//     try {
-//       const updatedStudents = students.value.map((student: Users) =>
-//         student.id === studentData.id ? { ...studentData } : student,
-//       )
-//       localStorage.setItem('students', JSON.stringify(updatedStudents))
-//       students.value = updatedStudents
-//       ElMessage.success('Update successfull')
-//     } catch (error) {
-//       ElMessage.error('Update failed')
-//       console.error(error)
-//     }
-//   }
-
-//   // delete user from the list
-//   function onDeleteStudentInfo(id: string) {
-//     try {
-//       console.log('argument id: ' + id)
-//       const currentStudents = fetchStudents()
-//       const updatedStudents = currentStudents.filter((student: Users) => student.id !== id)
-
-//       localStorage.setItem('students', JSON.stringify(updatedStudents))
-//       // Update the reactive students ref to trigger re-render
-//       students.value = updatedStudents
-//       ElMessage.success('Deletion successful')
-//     } catch (error) {
-//       ElMessage.error('Deletion failed')
-//       console.error(error)
-//     }
-//   }
-
-//   return {
-//     fetchStudents,
-//     onUpdateStudentInfo,
-//     onDeleteStudentInfo,
-//     students,
-//     onAddStudents,
-//   }
-// })

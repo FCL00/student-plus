@@ -7,19 +7,25 @@ StudentPlus is a simple student registration form application designed to store 
 ## Installation and Setup
 Follow the steps below to set up the project:
 
-1. Clone Repository
-    ```
-    git clone https://github.com/FCL00/student-plus.git
-    ```
+Clone Repository
+```
+git clone https://github.com/FCL00/student-registration.git
+```
 
-2. Run `npm run install`
-    ```
-    npm run install
-    ```
-3. Then run the server
-    ```
-    npm run dev
-    ```
+Run `npm run install`
+```
+npm run install
+```
+Then run the server
+```
+npm run dev
+```
+Type-Check, Compile and Minify for Production
+```
+npm run build
+```
+
+
 ## Features
 - Add new student records
 - Update existing student details
@@ -28,12 +34,26 @@ Follow the steps below to set up the project:
 - Input validation and error handling
 - Authentication / Forgot Password
 
-## Usage
-After installing the required packages, you can start the application using the test account provided:
-```
-Username: admin123@gmail.com  
-Password: admin123!
-```
+## Functional Requirement
+| Feature                          | Description                                                |
+| -------------------------------- | ---------------------------------------------------------- |
+| **Data (Variables)**             | Store student form input values                            |
+| **Binding**                      | Use `v-model` to bind input fields                         |
+| **Conditionals**                 | Show/hide messages or fields (e.g., success message)       |
+| **Iterations**                   | Loop through course options or display records             |
+| **Responsive**                   | Mobile-first layout using CSS/Flex/Grid                    |
+| **Method (Validation & Submit)** | Validate form input and submit data                        |
+| **Computed**                     | Auto-calculate age from birth date                         |
+| **Watch Properties**             | Monitor changes in birth date to update age                |
+| **Add Student Records (Table)**  | Display registered students in a table                     |
+| **Components**                   | Use child components (e.g., StudentForm, StudentTable)     |
+| **Props**                        | Pass data between parent-child components                  |
+| **Routing**                      | Use Vue Router for navigation between login/register pages |
+| **Emit**                         | Emit custom events from child to parent                    |
+| **Local Storage (Pinia)**        | Store student records in local storage using Pinia         |
+| **Documentation**                | Full technical documentation of all features               |
+
+
 ## Project Structure
 ```
 student-registration/
@@ -54,6 +74,14 @@ student-registration/
 ├── package.json
 └── README.md     
 ```
+
+## Routing Structure
+| Path               | Component                | Description             |
+| ------------------ | ------------------------ | ----------------------- |
+| `/login`           | `LoginPage.vue`          | User login page         |
+| `/forgot-password` | `ForgotPasswordPage.vue` | Reset Password Page     |
+| `/dashboard`       | `Dashboard.vue`          | Display of all students |
+
 
 
 ## Demo

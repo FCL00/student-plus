@@ -36,11 +36,15 @@ import { Search } from '@element-plus/icons-vue'
 
 const studentsStore = useStudents()
 
+// holds the value of name filter
 const nameFilter = ref('')
+
+// holds the value of course filter
 const courseFilter = ref('')
 
 // Update store filters
 watch(nameFilter, (val) => {
+  val = val.trim();
   studentsStore.setFilterName(val)
 })
 watch(courseFilter, (val) => {
@@ -64,6 +68,8 @@ onMounted(() => {
   align-items: center;
 }
 
+
+
 :deep(.el-input) {
   width: 300px;
   margin-bottom: 10px;
@@ -72,29 +78,13 @@ onMounted(() => {
 :deep(.el-select) {
   width: 200px;
   margin-left: 10px;
+  text-overflow: ellipsis;
 }
 
 .search-bar {
   margin-top: 10rem;
   display: flex;
   justify-content: center;
-}
-
-/* search-bar */
-@media (max-width: 560px) {
-  .search-bar {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  :deep(.el-input) {
-    width: 100%;
-  }
-
-  :deep(.el-select) {
-    width: 100%;
-    margin: 0px;
-  }
 }
 
 .card-list {
@@ -147,6 +137,25 @@ onMounted(() => {
   .card-list {
     --grid-cols: 1;
     width: 100%;
+  }
+}
+
+
+
+/* search-bar */
+@media (max-width: 560px) {
+  .search-bar {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  :deep(.el-input) {
+    width: 100%;
+  }
+
+  :deep(.el-select) {
+    width: 100%;
+    margin: 0px;
   }
 }
 </style>

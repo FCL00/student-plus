@@ -1,5 +1,7 @@
+<!-- A full-page container layout component that centers its content -->
 <template>
   <div class="container">
+    <!-- Inject any component here-->
     <slot></slot>
     <img :src="curve" alt="curve" class="top-right" loading="eager" />
     <img :src="ellispse" alt="ellispse" class="bottom-left" loading="eager" />
@@ -7,11 +9,15 @@
 </template>
 
 <script lang="ts" setup>
+// images imported from assets
 import curve from '@/assets/curve.png'
 import ellispse from '@/assets/Ellipse.png'
+
 </script>
 
 <style scoped>
+
+/* Full-page container with centered content and relative positioning */
 .container {
   display: flex;
   justify-content: center;
@@ -23,6 +29,7 @@ import ellispse from '@/assets/Ellipse.png'
   z-index: 10;
 }
 
+/* Images positioning */
 .top-right,
 .bottom-left {
   position: absolute;
@@ -39,6 +46,7 @@ import ellispse from '@/assets/Ellipse.png'
   left: 0px;
 }
 
+/* Responsize adjustment for images */
 @media (max-width: 1174px) {
   .top-right {
     width: 60%;
