@@ -36,7 +36,6 @@
       :birthdate="''"
       :address="''"
       :course="''"
-      :id="studentId"
       :BtnLabel="'Add User'"
       :BtnDelete="false"
       :OnAdd="true"

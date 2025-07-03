@@ -1,3 +1,6 @@
+/**
+ * { username: string, password: string, confirmpassword?: string }
+*/
 interface Credentials {
   username: string
   password: string
@@ -13,7 +16,7 @@ interface LoginRuleForm {
 interface Users {
   id: string
   firstname: string
-  middlename: string
+  middlename?: string
   lastname: string
   birthdate: string
   age: number
@@ -23,7 +26,7 @@ interface Users {
 
 interface UsersRuleForm {
   firstname: string
-  middlename: string
+  middlename?: string
   lastname: string
   birthdate: string
   age: number

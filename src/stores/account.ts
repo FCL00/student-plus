@@ -34,8 +34,8 @@ export const useAccount = defineStore('accounts', {
     
     /**
      * Check user credentials if valid
-     * @param {any} credentials:Credentials
-     * @returns {any}
+     * @param {Credentials} credentials:Credentials
+     * 
      */
     onLogin(credentials: Credentials) { 
       const account = JSON.parse(localStorage.getItem('accounts') || 'null')
