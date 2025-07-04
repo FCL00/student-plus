@@ -6,16 +6,16 @@
       <slot name="header"></slot>
     </header>
     <!-- Firstname -->
-    <el-form-item label="Firstname" prop="firstname" label-position="top">
+    <el-form-item label="First Name" prop="firstname" label-position="top">
       <el-input
         v-model="ruleForm.firstname"
-        placeholder="Enter your firstname"
+        placeholder="Enter your first name"
         clearable
         autocomplete="off"
       />
     </el-form-item>
     <!-- Middle Name -->
-    <el-form-item label="Middlename (optional)" prop="middlename" label-position="top">
+    <el-form-item label="Middle Name (optional)" prop="middlename" label-position="top">
       <el-input
         v-model.value="ruleForm.middlename"
         placeholder="Enter your middle name"
@@ -33,11 +33,11 @@
       />
     </el-form-item>
     <!-- Birthdate -->
-    <el-form-item label="Birthdate" prop="birthdate" label-position="top">
+    <el-form-item label="Birth Date" prop="birthdate" label-position="top">
       <el-date-picker
         v-model="ruleForm.birthdate"
         type="date"
-        placeholder="Select your birthdate"
+        placeholder="Select your birth date"
         size="large"
         :disabled-date="disabledDate"
       />
@@ -239,11 +239,50 @@ const middleNameValidator = (rule: string, value: string, callback: (error?: str
 
 
 const addressValidator = (rule: string, value: string, callback: (error?: string | Error) => void ) => {
-  if(!value.trim()){
-    callback(new Error('This field is required'))
-  } else {
-    callback()
+  const trimmed = value.trim()
+  // Pattern: Only digits (pure number)
+  const isOnlyNumbersPattern = /^\d+$/
+
+  // Pattern: Valid characters only (letters, numbers, space, comma, period, hyphen)
+  const validCharactersPattern = /^[A-Za-z0-9\s,.-]+$/
+
+  // Pattern: Repeated spaces or hyphens
+  const repeatedHyphenOrSpacePattern = /[\s-]{2,}/
+
+  // Pattern: Starts or ends with punctuation or space
+  const leadingOrTrailingPunctuationPattern = /^[,\-.\s]|[,\-.\s]$/
+
+  //  Required field
+  if (!trimmed) {
+    return callback(new Error('Address is required'))
   }
+
+  //  Should not be only numbers
+  if (isOnlyNumbersPattern.test(trimmed)) {
+    return callback(new Error('Address cannot be only numbers'))
+  }
+
+  //  Invalid characters
+  if (!validCharactersPattern.test(trimmed)) {
+    return callback(
+      new Error('Only letters, numbers, commas, periods, and hyphens are allowed')
+    )
+  }
+
+  //  Repeated hyphens or spaces
+  if (repeatedHyphenOrSpacePattern.test(trimmed)) {
+    return callback(
+      new Error('No repeated spaces or hyphens allowed in the address')
+    )
+  }
+
+  //  Starts or ends with space or punctuation
+  if (leadingOrTrailingPunctuationPattern.test(trimmed)) {
+    return callback(new Error('Address cannot start or end with punctuation or space'))
+  }
+
+  // ✅ Valid address
+  callback()
 }
 
 // validate the user inputs
@@ -282,6 +321,7 @@ const rules = reactive<FormRules<UsersRuleForm>>({
     { required: true, message: 'birthdate is required', trigger: 'blur' }, 
    
   ],
+  
 })
 
 // Lower case the student data
