@@ -1,11 +1,10 @@
 <template>
   <!-- Student Form -->
-  <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
+  <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" @submit.prevent="submitForm(ruleFormRef)">
     <header>
       <!-- Inject Header Here -->
       <slot name="header"></slot>
     </header>
-
     <!-- Firstname -->
     <el-form-item label="Firstname" prop="firstname" label-position="top">
       <el-input
@@ -15,9 +14,8 @@
         autocomplete="off"
       />
     </el-form-item>
-
     <!-- Middle Name -->
-    <el-form-item label="Middlename" prop="middlename" label-position="top">
+    <el-form-item label="Middlename (optional)" prop="middlename" label-position="top">
       <el-input
         v-model.value="ruleForm.middlename"
         placeholder="Enter your middle name"
@@ -25,8 +23,6 @@
         autocomplete="off"
       />
     </el-form-item>
-
-
     <!-- Lastname -->
     <el-form-item label="Lastname" prop="lastname" label-position="top">
       <el-input
@@ -36,7 +32,6 @@
         autocomplete="off"
       />
     </el-form-item>
-
     <!-- Birthdate -->
     <el-form-item label="Birthdate" prop="birthdate" label-position="top">
       <el-date-picker
@@ -47,7 +42,6 @@
         :disabled-date="disabledDate"
       />
     </el-form-item>
-
     <!-- Age -->
     <el-form-item label="Age" prop="age" label-position="top">
       <el-input
@@ -59,7 +53,6 @@
         autocomplete="off"
       />
     </el-form-item>
-
     <!-- Course -->
     <el-form-item label="Course" prop="course" label-position="top">
       <el-select v-model="ruleForm.course" placeholder="Select" size="large" fit-input-width>
@@ -71,7 +64,6 @@
         />
       </el-select>
     </el-form-item>
-
     <!-- Address -->
     <el-form-item label="Address" prop="address" label-position="top">
       <el-input
@@ -81,28 +73,25 @@
         autocomplete="off"
       />
     </el-form-item>
-
     <!-- Button Group  for (Add, Reset Delete) -->
     <div class="button-group">
-      <el-button color="#181818" @click="submitForm(ruleFormRef)" :icon="Edit">
+      <el-button color="#181818" native-type="submit" :icon="Edit">
         {{ BtnLabel }}
       </el-button>
       <el-button @click="resetForm(ruleFormRef)" type="primary" :icon="Refresh"> Reset </el-button>
       <el-button 
         v-if="props.BtnDelete" type="danger"
-        @click=" () => { confirmDelete(ruleForm.id)}"
+        @click="()=>{ confirmDelete(ruleForm.id)}"
         :icon="Delete"
       >
         Delete
       </el-button>
-      
     </div>
-
   </el-form>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineProps, watch, onUpdated } from 'vue'
+import { reactive, ref, defineProps, watch, onUpdated, defineEmits } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { Users, UsersRuleForm } from '@/types'
 import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
@@ -112,12 +101,13 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { capitalize } from '@/utils/capitalize'
 import { useDate } from "@/composables/useDate"
 
-// util function to disable dates
+// disable dates
 const { disabledDate } = useDate(); 
 
 // functions that handle update / delete / add student records
 const { onUpdateStudentInfo, onDeleteStudentInfo, onAddStudents } = useStudents()
 
+const emits = defineEmits(['on-drawer-close'])
 
 // Student form props
 interface StudentFormProps {
@@ -204,7 +194,7 @@ const checkAgeNumber = (rule: string, value: number, callback: (error?: string |
  * @param {any} value - The value of the names field to validate if they have
  * @param {any} callback - Function to call with validation result (error or success)
  */
-const nameValidator = (rule: string, value: string, callback: (error?: string | Error) => void) => {
+const nameValidator = (field: string) => (rule: string, value: string, callback: (error?: string | Error) => void) => {
   // 1. Allow only letters, hyphens, and spaces
   const validCharsPattern = /^[A-Za-z\s-]+$/;
   // 2. Ensure clean structure: no multiple/consecutive hyphens or spaces, no leading/trailing hyphens/spaces
@@ -213,7 +203,7 @@ const nameValidator = (rule: string, value: string, callback: (error?: string | 
   if (!value.trim()) {
     callback(new Error('This field is required.'))
   } else if (!validCharsPattern.test(value.trim())) {
-    callback(new Error('Only letters, hyphens, and spaces are allowed. No numbers or symbols.'));
+    callback(new Error(`${field} contains invalid characters. Only letters and dashes are allowed`));
   } else if (!cleanStructurePattern.test(value.trim())) {
     callback(new Error('No leading/trailing or repeated hyphens/spaces allowed.'))
   } else {
@@ -232,12 +222,15 @@ const middleNameValidator = (rule: string, value: string, callback: (error?: str
 
   const validCharsPattern = /^[A-Za-z\s-]+$/;
   const cleanStructurePattern = /^[A-Za-z]+(?:[- ][A-Za-z]+)*$/;
-
+  
   if (!validCharsPattern.test(trimmed)) {
-    callback(new Error('Only Alphabet is allowed'));
+    callback(new Error('contains invalid characters. Only letters and dashes are allowed'));
   } else if (!cleanStructurePattern.test(trimmed)) {
     callback(new Error('No leading/trailing or repeated hyphens/spaces allowed.'));
-  } else {
+  } else if(trimmed.length < 2){
+    callback(new Error('Invalid Middlename'));
+  }
+  else {
     callback(); // ✅ success
   }
 
@@ -259,7 +252,7 @@ const rules = reactive<FormRules<UsersRuleForm>>({
   firstname: [
     { required: true, message: 'firstname is required', trigger: 'blur' },
     { min: 2, message: 'firstname is required', trigger: 'blur' },
-    { validator: nameValidator, trigger: 'blur' },
+    { validator: nameValidator('firstname'), trigger: 'blur' },
   ],
   // middlename validators
   middlename: [
@@ -269,7 +262,7 @@ const rules = reactive<FormRules<UsersRuleForm>>({
   // lastname validators
   lastname: [
     { required: true, message: 'lastname is required', trigger: 'blur' },
-    { validator: nameValidator, trigger: 'blur' },
+    { validator: nameValidator('lastname'), trigger: 'blur' },
   ],
   // age validators
   age: [
@@ -316,6 +309,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         onAddStudents(formCopy)
       } else if (!props.OnAdd) {
         onUpdateStudentInfo(formCopy)
+        emits('on-drawer-close');
       } else {
         ElMessage.error('Something went wrong')
       }
@@ -333,7 +327,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
  * @param {any} id:string
  */
 const confirmDelete = (id: string) => {
-
   ElMessageBox.confirm(
     'This action will permanently delete the student record. Continue?',
     'Warning',

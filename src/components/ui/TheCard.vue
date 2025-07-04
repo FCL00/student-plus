@@ -41,6 +41,7 @@
       :address="address"
       :course="props.course"
       :id="props.id"
+      @on-drawer-close="onDrawerClose"
     ></student-form>
   </the-drawer>
 </template>
@@ -58,13 +59,25 @@ import { capitalizeEachWord } from '@/utils/capitalize'
 const drawer = ref(false)
 
 // display the fullname
-const fullname = computed(() => `${capitalize(props.firstname)} ${props.middlename.charAt(0).toUpperCase()}. ${capitalize(props.lastname)} `)
+const fullname = computed(() => {
+  if(props.middlename){
+    return `${capitalizeEachWord(props.firstname)} ${props.middlename?.charAt(0).toUpperCase()}. ${capitalizeEachWord(props.lastname)} `
+  } else {
+    return `${capitalizeEachWord(props.firstname)} ${capitalizeEachWord(props.lastname)} `
+  }
+})
 
 // display address 
 const address = computed(() => `${capitalizeEachWord(props.address)}`)
 // define props
 const props = defineProps<Users>()
 
+
+const onDrawerClose = () => {
+  drawer.value = false;
+  console.log('on drawer close', )
+
+}
 </script>
 
 <style scoped>

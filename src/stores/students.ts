@@ -30,7 +30,8 @@ export const useStudents = defineStore('students', {
           ? student.course.toLowerCase() === state.filterCourse.toLowerCase()
           : true
 
-        const fullName = student.middlename ? `${student.firstname} ${student.middlename} ${student.lastname}`.toLowerCase().trim() : `${student.firstname} ${student.lastname}`.toLowerCase().trim()
+        const fullName = `${student.firstname} ${student.middlename} ${student.lastname}`.toLowerCase().trim() 
+
         const matchName = state.filterName
           ? fullName.includes(state.filterName.toLowerCase())
           : true
@@ -38,6 +39,8 @@ export const useStudents = defineStore('students', {
         return matchCourse && matchName
       })
     },
+
+
 
     /**
      * Get student record by id
@@ -104,7 +107,7 @@ export const useStudents = defineStore('students', {
       studentList.push(newStudent)
       localStorage.setItem('students', JSON.stringify(studentList))
       this.students = studentList
-      ElMessage.success('Successfully added new User')
+      ElMessage.success('Successfully added new student record')
     },
 
 

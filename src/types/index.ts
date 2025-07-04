@@ -16,7 +16,7 @@ interface LoginRuleForm {
 interface Users {
   id: string
   firstname: string
-  middlename?: string
+  middlename: string
   lastname: string
   birthdate: string
   age: number

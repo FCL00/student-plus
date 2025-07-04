@@ -45,19 +45,13 @@
 
 <script lang="ts" setup>
 import { RouterLink } from 'vue-router'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { TheDrawer } from '@/components/ui'
 import { StudentForm } from '@/components'
 import { useAuth } from '@/composables/useAuth'
-import { v4 as uuidv4 } from 'uuid'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const drawer = ref(false)
-const studentId = ref<string>(uuidv4())
-
-watch(drawer, (val) => {
-  studentId.value = uuidv4()
-})
 
 const { onLogout } = useAuth()
 

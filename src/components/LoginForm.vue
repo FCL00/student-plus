@@ -1,7 +1,6 @@
 
 <template>
   <!-- form  -->
-  
   <el-form ref="ruleFormRef" :rules="rules" :model="ruleForm" @submit.prevent="submitForm(ruleFormRef)">
     <h1 v-if="props.confirmpassword">Forgot Password</h1>
     <!-- Username input -->
@@ -40,12 +39,12 @@
     </el-form-item>
     <!-- Submit button -->
     <el-button  native-type="submit">
-      {{ props.confirmpassword ? 'Save Changes' : 'Login' }}
+      {{ props.confirmpassword ? 'Save Changes' : 'LOGIN' }}
     </el-button>
 
      <!-- Forgot Password only for login page -->
     <div class="right-link">
-      <RouterLink v-if="!props.confirmpassword" to="/forgot-password">Forgot Password</RouterLink>
+      <RouterLink v-if="!props.confirmpassword" to="/forgot-password">Forgot Password?</RouterLink>
       <RouterLink v-if="props.confirmpassword" to="/">&larr; Return Home</RouterLink>
     </div>
   </el-form>
@@ -116,7 +115,7 @@ const matchPassword = (rule: any, value: string, callback: any) => {
   if (!value) {
     return callback(new Error('Password is required.'))
   } else if (value !== ruleForm.password) {
-    return callback(new Error('Password and Confirm Password doesnt match'))
+    return callback(new Error('Password and Confirm Password must match'))
   } else {
     return callback() 
   }
@@ -208,18 +207,22 @@ form {
 }
 
 /* element plus button styling */
-:deep(.el-button){
+button{
   --el-button-font-weight: bold;
-  --el-button-text-color: #696969;
+  --el-button-text-color: #2148c0;
   font-family: 'Montserrat', sans-serif;
   width: 100%;
   height: 50px;
 }
 
 
+
+:deep(.el-form-item){
+  margin-bottom: 32px;
+}
+
 /* element plus input styling */
 :deep(.el-input) {
-  margin-bottom: 12px;
   --el-input-placeholder-color: #fff;
 }
 

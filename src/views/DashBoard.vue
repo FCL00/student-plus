@@ -21,7 +21,9 @@
         :course="student.course"
         :address="student.address"
       />
+      
     </ul>
+
     <el-empty v-if="!filteredStudents.length" description="No Students Found" />
   </div>
 </template>
