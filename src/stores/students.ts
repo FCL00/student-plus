@@ -95,8 +95,8 @@ export const useStudents = defineStore('students', {
         oldStudentData.firstname === newStudentData.firstname &&
         oldStudentData?.middlename === newStudentData?.middlename &&
         oldStudentData.lastname === newStudentData.lastname 
-        // oldStudentData.age === newStudentData.age &&
-        // oldStudentData.birthdate === newStudentData.birthdate &&
+        oldStudentData.age === newStudentData.age &&
+        oldStudentData.birthdate === newStudentData.birthdate &&
         // oldStudentData.address === newStudentData.address &&
         // oldStudentData.course === newStudentData.course
       );
