@@ -27,10 +27,10 @@ const emit = defineEmits(['update:visible'])
 
 
 function resize() {
-  if( window.innerWidth > 1000  &&  window.innerWidth < 1400){
+  if( window.innerWidth > 1280  &&  window.innerWidth < 1400){
     size.value = 30
   }
-  else if (window.innerWidth >= 500  && window.innerWidth < 1000) {
+  else if (window.innerWidth >= 500  && window.innerWidth <= 1280) {
     size.value = 50
   } 
  
