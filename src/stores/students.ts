@@ -86,54 +86,63 @@ export const useStudents = defineStore('students', {
       }
     },
 
-    isDuplicateStudent(newStudent: Users): boolean {
-      return this.students.some(student => this.onExistingData(student, newStudent));
-    },
+   isDuplicateStudent(newStudent: Users, excludeId?: string): boolean {
+    return this.students.some(student => {
+      if (excludeId && student.id === excludeId) return false; // Exclude current student
+      return this.onExistingData(student, newStudent);
+    });
+  },
+
 
     onExistingData(oldStudentData: Users, newStudentData: Users) {
       return (
         oldStudentData.firstname === newStudentData.firstname &&
         oldStudentData?.middlename === newStudentData?.middlename &&
-        oldStudentData.lastname === newStudentData.lastname 
+        oldStudentData.lastname === newStudentData.lastname &&
         oldStudentData.age === newStudentData.age &&
-        oldStudentData.birthdate === newStudentData.birthdate &&
+        oldStudentData.birthdate === newStudentData.birthdate 
         // oldStudentData.address === newStudentData.address &&
         // oldStudentData.course === newStudentData.course
       );
     },
     async onUpdateStudentInfo(studentData: Users) {
-      
-      const index = this.students.findIndex(student => student.id === studentData.id)
+      const index = this.students.findIndex(student => student.id === studentData.id);
+
+      if (index === -1) {
+        ElMessage.error('Update failed: Student not found');
+        return;
+      }
 
       const originalStudent = this.students[index];
 
-      // If nothing changed, show a message and exit
-      const isUnchanged = this.onExistingData(originalStudent, studentData);
-      if (isUnchanged) {
+      // Check if the updated data is exactly the same
+      if (JSON.stringify(originalStudent) === JSON.stringify(studentData)) {
         ElMessage.info('No changes were made');
         return;
       }
 
-      // check data duplication
-      if(this.isDuplicateStudent(studentData)){
-        await ElMessageBox.confirm( 
-            'Student information already exists. Do you wish to continue?',
-            'Warning', 
+      // Exclude the student being updated from the duplicate check
+      if (this.isDuplicateStudent(studentData, studentData.id)) {
+        try {
+          await ElMessageBox.confirm(
+            'Another student with this data already exists. Do you want to continue?',
+            'Warning',
             {
               confirmButtonText: 'Yes',
               cancelButtonText: 'Cancel',
               type: 'warning',
-            })
+            }
+          );
+        } catch {
+          ElMessage.info('Update canceled');
+          return;
+        }
       }
 
-      // check if the user try to create/update existing data
-       if(index != -1){
-          this.students[index] = studentData;
-          ElMessage.success('Update successful')
-          } else {
-          ElMessage.error('Update failed')
-        }
+      // Proceed with update
+      this.students[index] = studentData;
       this.SaveLocalStorage();
+      ElMessage.success('Update successful');
     },
 
     onDeleteStudentInfo(id: string) {
