@@ -9,22 +9,22 @@ import { ElMessage } from 'element-plus'
 const routes = [
   {
     path: '/',
-    component: () => LoginPage,
+    component: LoginPage,
     meta: { middleware: 'guest' },
   },
   {
     path: '/login',
-    component: () => LoginPage,
+    component: LoginPage,
     meta: { middleware: 'guest' },
   },
   {
     path: '/dashboard',
-    component: () => DashBoard,
+    component: DashBoard,
     meta: { middleware: 'auth' },
   },
   {
     path: '/forgot-password',
-    component: () => ForgotPasswordPage,
+    component: ForgotPasswordPage,
     meta: { middleware: 'guest' },
   },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
