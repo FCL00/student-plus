@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <main class="container">
      <student-search
       v-model:nameFilter="nameFilter"
       v-model:courseFilter="courseFilter"
@@ -24,22 +24,16 @@
       <student-form :student="selectStudent" @on-drawer-close="closeDrawerApp"/> 
     </student-drawer>
     <el-empty v-if="!filteredStudents.length" description="No Students Found" />
-  </div>
+  </main>
 </template>
 
 <script lang="ts" setup>
 import { TheCard as StudentCard, TheHeader as Header, TheDrawer as StudentDrawer, TheSearchBar as StudentSearch } from '@/components/ui'
 import { StudentForm } from '@/components'
-// import { useAuth } from '@/composables/useAuth'
 import {  watch, ref, computed } from 'vue'
 import { useStudents } from '@/stores/students'
 import type { Users } from "@/types"
 
-// check authentication
-// const { checkAuth } = useAuth()
-// onMounted(() => {
-//   checkAuth()
-// })
 
 
 const isDrawerVisible = ref(false);
@@ -72,48 +66,44 @@ const filteredStudents = computed(() => studentsStore.allStudents)
 
 <style scoped>
 .container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  
+  box-sizing: border-box;
+}
+
+.center {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
 }
 
 
 .card-list {
-  --grid-cols: 4;
-  max-width: 1440px;
   display: grid;
-  grid-template-columns: repeat(var(--grid-cols), 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  width: 100%;
   background-color: #fff;
-  padding: 4px;
   border-radius: 4px;
   margin-bottom: 32px;
 }
 
-/* search-bar */
-@media (max-width: 560px) {
-  .search-bar {
-    flex-direction: column;
-  }
-
-  .search-bar input {
-    width: 100%;
-  }
-}
-
 /* for grid column */
 @media (max-width: 1460px) {
-  .container {
-    padding: 20px;
-  }
-
   .card-list {
     --grid-cols: 4;
   }
 }
 
 @media (max-width: 1255px) {
+  .container {
+    padding: 20px;
+  }
   .card-list {
     --grid-cols: 3;
   }
@@ -132,22 +122,4 @@ const filteredStudents = computed(() => studentsStore.allStudents)
   }
 }
 
-
-
-/* search-bar */
-@media (max-width: 560px) {
-  .search-bar {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  :deep(.el-input) {
-    width: 100%;
-  }
-
-  :deep(.el-select) {
-    width: 100%;
-    margin: 0px;
-  }
-}
 </style>
