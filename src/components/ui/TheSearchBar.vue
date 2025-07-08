@@ -59,22 +59,23 @@ function updateCourseFilter(val: string) {
 
 <style scoped>
 
-:deep(.el-input) {
-  width: 300px;
-  margin-bottom: 10px;
-}
-
-:deep(.el-select) {
-  margin-left: 10px;
-  text-overflow: ellipsis;
-}
-
-
 .search-bar {
-  width:  713px;
-  margin-top: 10rem;
   display: flex;
-  gap: 4px;
-  justify-content: center;
+  gap: 16px;  
+  margin-top: 10rem;
+  margin-bottom: 16px;
+}
+
+
+@media (max-width: 560px) {
+  .search-bar{
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  :deep(.el-input) {
+    margin-bottom: 4px;
+  }
 }
 </style>
