@@ -1,10 +1,10 @@
 <template>
+  <Header />
   <main class="container">
      <student-search
       v-model:nameFilter="nameFilter"
       v-model:courseFilter="courseFilter"
     />
-    <Header />
     <ul v-if="filteredStudents.length" class="card-list">
       <student-card
         v-for="student in filteredStudents"
