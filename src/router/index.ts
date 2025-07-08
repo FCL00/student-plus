@@ -51,7 +51,7 @@ router.beforeEach((to, from, next) => {
     if (isAuthenticated()) {
       return next()
     } else {
-      ElMessage({ type: 'error', message: 'You need logged in before accessing this page', showClose: true} )
+      ElMessage({ type: 'error', message: 'You need log in before accessing this page', showClose: true} )
       return next('/')
     }
   }
