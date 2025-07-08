@@ -24,7 +24,7 @@
       />
     </el-form-item>
     <!-- Lastname -->
-    <el-form-item label="Lastname" prop="lastname" label-position="top">
+    <el-form-item label="Last Name" prop="lastname" label-position="top">
       <el-input
         v-model.value="ruleForm.lastname"
         placeholder="Enter your last name"
