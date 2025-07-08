@@ -26,7 +26,7 @@
       </div>
       <div class="icon">
         <el-icon><MapLocation /></el-icon>
-        <p>Address: <span>{{ address.slice(0, 50) }}</span></p>
+        <p>Address: <span>{{ `${address.slice(0, 50)}...` }}</span></p>
       </div>
     </div>
   </el-card>
