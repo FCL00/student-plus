@@ -3,7 +3,7 @@
     <div class="card-header">
       <div class="card-group">
         <el-icon><User /></el-icon>
-        <h5 class="fullname">{{ fullname }}</h5>
+        <h5 class="fullname">{{ fullname.length > 30 ?  `${fullname.slice(0, 30)}...` : fullname }}</h5>
       </div>
       <button color="#2148c0" @click="openDrawer">
         <el-icon color="white">
@@ -26,7 +26,7 @@
       </div>
       <div class="icon">
         <el-icon><MapLocation /></el-icon>
-        <p>Address: <span>{{ `${address.slice(0, 50)}...` }}</span></p>
+        <p>Address: <span class="ellipsis">{{ address.length > 50 ? `${address.slice(0, 50)}...` :  address }}</span></p>
       </div>
     </div>
   </el-card>
