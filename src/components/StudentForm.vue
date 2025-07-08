@@ -70,8 +70,10 @@
     <el-form-item label="Address" prop="address" label-position="top">
       <el-input
         v-model="ruleForm.address"
+        type="textarea"
+        :rows="4"
+        resize="none"
         placeholder="Enter your full address"
-        clearable
         autocomplete="off"
       />
     </el-form-item>
@@ -410,15 +412,19 @@ h2 {
   padding: 4px;
 }
 
+.button-group{
+  margin-top: 10px;
+}
+
 @media (max-width: 850px){
   .button-group {
     display: flex;
     flex-direction: column;
+    flex-wrap: wrap;
   }
 
   :deep(.el-button){
     margin: 4px 0px;
   }
 }
-
 </style>
