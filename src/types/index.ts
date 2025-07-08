@@ -14,14 +14,14 @@ interface LoginRuleForm {
 }
 
 interface Users {
-  id: string
-  firstname: string
-  middlename: string
-  lastname: string
-  birthdate: string
-  age: number
-  address: string
-  course: string
+  id?: string
+  firstname?: string
+  middlename?: string
+  lastname?: string
+  birthdate?: string
+  age?: number
+  address?: string
+  course?: string
 }
 
 interface UsersRuleForm {

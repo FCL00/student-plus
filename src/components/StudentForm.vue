@@ -40,6 +40,8 @@
         placeholder="Select your birth date"
         size="large"
         :disabled-date="disabledDate"
+        format="MM/DD/YYYY"
+        value-format="MM/DD/YYYY"
       />
     </el-form-item>
     <!-- Age -->
@@ -81,7 +83,7 @@
       <el-button @click="resetForm(ruleFormRef)" type="primary" :icon="Refresh"> Reset </el-button>
       <el-button 
         v-if="props.BtnDelete" type="danger"
-        @click="()=>{ confirmDelete(ruleForm.id)}"
+        @click="()=>{ confirmDelete(ruleForm.id ?? '')}"
         :icon="Delete"
       >
         Delete
@@ -91,14 +93,14 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineProps, watch, onUpdated, defineEmits } from 'vue'
+import { reactive, ref, defineProps, watch, defineEmits } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { Users, UsersRuleForm } from '@/types'
 import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
 import { courses } from '@/constants'
 import { useStudents } from '@/stores/students'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { capitalize } from '@/utils/capitalize'
+import { capitalizeEachWord } from '@/utils/capitalize'
 import { useDate } from "@/composables/useDate"
 
 // disable dates
@@ -111,14 +113,7 @@ const emits = defineEmits(['on-drawer-close'])
 
 // Student form props
 interface StudentFormProps {
-  id?: string
-  firstname: string
-  middlename?: string
-  lastname: string
-  birthdate: string
-  age: number
-  address: string
-  course: string
+  student?: Users
   BtnDelete?: boolean
   BtnLabel?: string
   OnAdd?: boolean
@@ -135,23 +130,24 @@ const props = withDefaults(defineProps<StudentFormProps>(), {
 // Reference to the form instance used for validation and submission
 const ruleFormRef = ref<FormInstance>()
 
-/*   
-*   form models bound to the student form fields.
-*   Initialized with props passed to the component.
-*/ 
 const ruleForm = reactive<Users>({
-  id: props.id ?? '',
-  firstname: capitalize(props.firstname),
-  middlename: capitalize(props.middlename ?? '' ) ,
-  lastname: capitalize(JSON.parse(JSON.stringify(props.lastname))),
-  age: Number(props.age),
-  address: props.address,
-  birthdate: props.birthdate,
-  course: props.course,
+  id: '',
+  firstname: '',
+  middlename: '',
+  lastname: '',
+  age: 0,
+  address: '',
+  birthdate: '',
+  course: '',
 })
 
-// Watches the student's birthdate and automatically calculates age.
-// Updates the `formData.age` field whenever `formData.birthdate` changes.
+// Sync when props.student changes
+watch(() => props.student, (newStudent) => {
+  if (newStudent) {
+    Object.assign(ruleForm, newStudent)
+  }
+}, { immediate: true })
+
 watch(
   () => ruleForm.birthdate, // track the user input for birthdate
   (newVal) => {
@@ -171,13 +167,6 @@ watch(
 )
 
 
-
-/**
- * custom validator to check if the age is valid.
- * @param {string} rule - Validation rule object
- * @param {number} value - The value of the age field to validate
- * @param {string | Error } callback - Function to call with validation result (error or success)
- */
 const checkAgeNumber = (rule: string, value: number, callback: (error?: string | Error) => void) => {
   if (!value) {
     return callback(new Error('Age is required'))
@@ -188,22 +177,17 @@ const checkAgeNumber = (rule: string, value: number, callback: (error?: string |
   callback()
 }
 
-/**  
- * Custom validator to check for only letters, spaces, hyphens, and apostrophes
- * @param {any} rule - Validation rule object
- * @param {any} value - The value of the names field to validate if they have
- * @param {any} callback - Function to call with validation result (error or success)
- */
+
 const nameValidator = (field: string) => (rule: string, value: string, callback: (error?: string | Error) => void) => {
   // 1. Allow only letters, hyphens, and spaces
-  const validCharsPattern = /^[A-Za-z\s-]+$/;
+  const validCharsPattern = /^[A-Za-zÑñ\s-]+$/;
   // 2. Ensure clean structure: no multiple/consecutive hyphens or spaces, no leading/trailing hyphens/spaces
-  const cleanStructurePattern = /^[A-Za-z]+(?:[- ][A-Za-z]+)*$/;
+  const cleanStructurePattern = /^[A-Za-zÑñ]+(?:[- ][A-Za-zÑñ]+)*$/;
   // if value doesnt exist
   if (!value.trim()) {
     callback(new Error('This field is required.'))
   } else if (!validCharsPattern.test(value.trim())) {
-    callback(new Error(`${field} contains invalid characters. Only letters and dashes are allowed`));
+    callback(new Error(`${field} contains invalid characters. Number and Symbols are not allowed`));
   } else if (!cleanStructurePattern.test(value.trim())) {
     callback(new Error('No leading/trailing or repeated hyphens/spaces allowed.'))
   } else {
@@ -220,18 +204,18 @@ const middleNameValidator = (rule: string, value: string, callback: (error?: str
     return callback(); 
   }
 
-  const validCharsPattern = /^[A-Za-z\s-]+$/;
-  const cleanStructurePattern = /^[A-Za-z]+(?:[- ][A-Za-z]+)*$/;
+  const validCharsPattern = /^[A-Za-zÑñ\s-]+$/;
+  const cleanStructurePattern = /^[A-Za-zÑñ]+(?:[- ][A-Za-zÑñ]+)*$/;
   
   if (!validCharsPattern.test(trimmed)) {
-    callback(new Error('contains invalid characters. Only letters and dashes are allowed'));
+    callback(new Error('Middle contains invalid characters. Number and Symbols are not allowed'));
   } else if (!cleanStructurePattern.test(trimmed)) {
     callback(new Error('No leading/trailing or repeated hyphens/spaces allowed.'));
   } else if(trimmed.length < 2){
     callback(new Error('Invalid Middlename'));
   }
   else {
-    callback(); // ✅ success
+    callback();
   }
 
 
@@ -244,7 +228,7 @@ const addressValidator = (rule: string, value: string, callback: (error?: string
   const isOnlyNumbersPattern = /^\d+$/
 
   // Pattern: Valid characters only (letters, numbers, space, comma, period, hyphen)
-  const validCharactersPattern = /^[A-Za-z0-9\s,.-]+$/
+  const validCharactersPattern = /^[A-Za-zÑñ0-9\s,.-]+$/
 
   // Pattern: Repeated spaces or hyphens
   const repeatedHyphenOrSpacePattern = /[\s-]{2,}/
@@ -280,8 +264,6 @@ const addressValidator = (rule: string, value: string, callback: (error?: string
   if (leadingOrTrailingPunctuationPattern.test(trimmed)) {
     return callback(new Error('Address cannot start or end with punctuation or space'))
   }
-
-  // ✅ Valid address
   callback()
 }
 
@@ -325,26 +307,21 @@ const rules = reactive<FormRules<UsersRuleForm>>({
 })
 
 // Lower case the student data
-const toLowerCaseFormData = () => {
+const toUpperCaseFormData = () => {
   return {
     ...ruleForm,
-    firstname: ruleForm.firstname.toLowerCase().trim(),
-    middlename: ruleForm.middlename?.toLowerCase().trim() ,
-    lastname: ruleForm.lastname.toLowerCase().trim(),
-    address: ruleForm.address.toLowerCase().trim(),
+    firstname: capitalizeEachWord(ruleForm.firstname ?? ''),
+    middlename: capitalizeEachWord(ruleForm.middlename ?? ''),
+    lastname: capitalizeEachWord(ruleForm.lastname ?? ''),
+    address: capitalizeEachWord( ruleForm.address ?? '')
   }
 }
 
-/**
- *  handle form submit toggles between add students or update students
- * @param {any} formEl:FormInstance|undefined
- * @returns {any}
- */
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      const formCopy = toLowerCaseFormData()
+      const formCopy = toUpperCaseFormData()
       if (props.OnAdd) {
         onAddStudents(formCopy)
       } else if (!props.OnAdd) {
@@ -361,11 +338,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 }
 
 
-
-/**
- *  Message box for confirmation of deletetion of student record
- * @param {any} id:string
- */
 const confirmDelete = (id: string) => {
   ElMessageBox.confirm(
     'This action will permanently delete the student record. Continue?',
@@ -378,6 +350,7 @@ const confirmDelete = (id: string) => {
   )
     .then(() => {
       onDeleteStudentInfo(id)
+      emits("on-drawer-close")
     })
     .catch(() => {
       ElMessage.info('Delete canceled')
@@ -385,19 +358,16 @@ const confirmDelete = (id: string) => {
 }
 
 
-/**
- * Reset all the user inputs
- * @param {any} formEl:FormInstance|undefined
- * @returns {any}
- */
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  formEl.resetFields()
+  if(props.student) {
+    Object.assign(ruleForm, props.student)
+  } else {
+     formEl.resetFields()
+  }
   ElMessage.success("Form has been reset")
 }
-onUpdated(()=> {
-  Object.assign(ruleForm, props)
-})
+
 </script>
 
 <style scoped>

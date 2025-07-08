@@ -5,7 +5,7 @@
         <el-icon><User /></el-icon>
         <h5 class="fullname">{{ fullname }}</h5>
       </div>
-      <button color="#2148c0" @click="drawer = true">
+      <button color="#2148c0" @click="openDrawer">
         <el-icon color="white">
           <Edit />
         </el-icon>
@@ -26,57 +26,40 @@
       </div>
       <div class="icon">
         <el-icon><MapLocation /></el-icon>
-        <p>Address: <span>{{ address }}</span></p>
+        <p>Address: <span>{{ address.slice(0, 50) }}</span></p>
       </div>
     </div>
   </el-card>
-
-  <the-drawer v-model:visible="drawer">
-    <student-form
-      :firstname="props.firstname"
-      :lastname="props.lastname"
-      :middlename="props.middlename"
-      :age="props.age"
-      :birthdate="birthdate"
-      :address="address"
-      :course="props.course"
-      :id="props.id"
-      @on-drawer-close="onDrawerClose"
-    ></student-form>
-  </the-drawer>
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed, ref } from 'vue'
+import { defineProps, computed, defineEmits } from 'vue'
 import { ElCard } from 'element-plus'
 import type { Users } from '@/types'
 import { Edit, Calendar, School, MapLocation, User, IceTea } from '@element-plus/icons-vue'
-import { TheDrawer } from '@/components/ui'
-import { StudentForm } from '@/components'
-import { capitalize } from "@/utils/capitalize"
 import { capitalizeEachWord } from '@/utils/capitalize'
-// to toggle the drawer
-const drawer = ref(false)
+
+// toggle drawer
+const emit = defineEmits(['open-drawer'])
+
 
 // display the fullname
 const fullname = computed(() => {
   if(props.middlename){
-    return `${capitalizeEachWord(props.firstname)} ${props.middlename?.charAt(0).toUpperCase()}. ${capitalizeEachWord(props.lastname)} `
+    return `${capitalizeEachWord(props.firstname ?? '')} ${props.middlename?.charAt(0).toUpperCase()}. ${capitalizeEachWord(props.lastname ?? '')} `
   } else {
-    return `${capitalizeEachWord(props.firstname)} ${capitalizeEachWord(props.lastname)} `
+    return `${capitalizeEachWord(props.firstname ?? '')} ${capitalizeEachWord(props.lastname ?? '')} `
   }
 })
 
 // display address 
-const address = computed(() => `${capitalizeEachWord(props.address)}`)
+const address = computed(() => `${capitalizeEachWord(props.address ?? '')}`)
 // define props
 const props = defineProps<Users>()
 
 
-const onDrawerClose = () => {
-  drawer.value = false;
-  console.log('on drawer close', )
-
+const openDrawer = () => {
+  emit('open-drawer', props)
 }
 </script>
 

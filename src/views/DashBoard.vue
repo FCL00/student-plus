@@ -1,15 +1,12 @@
 <template>
   <div class="container">
-    <div class="search-bar">
-      <el-input v-model="nameFilter" placeholder="Search by name" clearable  :prefix-icon="Search"  />
-
-      <el-select v-model="courseFilter" placeholder="Filter by course" fit-input-width  clearable>
-        <el-option v-for="course in courses" :key="course" :label="course" :value="course" />
-      </el-select>
-    </div>
-    <the-header></the-header>
-    <ul v-if="filteredStudents" class="card-list">
-      <the-card
+     <student-search
+      v-model:nameFilter="nameFilter"
+      v-model:courseFilter="courseFilter"
+    />
+    <Header />
+    <ul v-if="filteredStudents.length" class="card-list">
+      <student-card
         v-for="student in filteredStudents"
         :key="student.id"
         :id="student.id"
@@ -20,46 +17,57 @@
         :birthdate="student.birthdate"
         :course="student.course"
         :address="student.address"
+        @open-drawer="openDrawerApp"
       />
-      
     </ul>
-
+    <student-drawer v-model:visible="isDrawerVisible">
+      <student-form :student="selectStudent" @on-drawer-close="closeDrawerApp"/> 
+    </student-drawer>
     <el-empty v-if="!filteredStudents.length" description="No Students Found" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { TheCard, TheHeader } from '@/components/ui'
-import { useAuth } from '@/composables/useAuth'
-import { onMounted, watch, ref, computed } from 'vue'
+import { TheCard as StudentCard, TheHeader as Header, TheDrawer as StudentDrawer, TheSearchBar as StudentSearch } from '@/components/ui'
+import { StudentForm } from '@/components'
+// import { useAuth } from '@/composables/useAuth'
+import {  watch, ref, computed } from 'vue'
 import { useStudents } from '@/stores/students'
-import { courses } from '@/constants'
-import { Search } from '@element-plus/icons-vue'
+import type { Users } from "@/types"
 
+// check authentication
+// const { checkAuth } = useAuth()
+// onMounted(() => {
+//   checkAuth()
+// })
+
+
+const isDrawerVisible = ref(false);
+const selectStudent = ref<Users>({})
+
+function openDrawerApp(student: Users){
+    isDrawerVisible.value = true
+    selectStudent.value = { ...student };
+    console.log(selectStudent.value)
+}
+
+
+function closeDrawerApp(){
+  isDrawerVisible.value = false
+  selectStudent.value = {}
+}
+
+// students store
 const studentsStore = useStudents()
 
-// holds the value of name filter
 const nameFilter = ref('')
-
-// holds the value of course filter
 const courseFilter = ref('')
 
-// Update store filters
-watch(nameFilter, (val) => {
-  val = val.trim();
-  studentsStore.setFilterName(val)
-})
-watch(courseFilter, (val) => {
-  studentsStore.setFilterCourse(val)
-})
+watch(nameFilter, (val) => studentsStore.setFilterName(val))
+watch(courseFilter, (val) => studentsStore.setFilterCourse(val))
 
 const filteredStudents = computed(() => studentsStore.allStudents)
 
-const { checkAuth } = useAuth()
-
-onMounted(() => {
-  checkAuth()
-})
 </script>
 
 <style scoped>
@@ -70,27 +78,6 @@ onMounted(() => {
   align-items: center;
 }
 
-
-
-
-:deep(.el-input) {
-  width: 300px;
-  margin-bottom: 10px;
-}
-
-:deep(.el-select) {
-  margin-left: 10px;
-  text-overflow: ellipsis;
-}
-
-
-.search-bar {
-  width:  700px;
-  margin-top: 10rem;
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-}
 
 .card-list {
   --grid-cols: 4;
